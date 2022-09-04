@@ -1,32 +1,42 @@
 <template>
-  <div id="app">
-    <div id="nav">
-      <router-link to="/">Home</router-link> |
-      <router-link to="/about">About</router-link>
-    </div>
-    <router-view/>
-  </div>
+  <v-app>
+    <component :is="layout">
+      <h1>СЛОЙ {{layout}}</h1>
+      <router-view />
+    </component>
+  </v-app>
 </template>
 
-<style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-}
+<script>
 
-#nav {
-  padding: 30px;
-}
+import AuthLayout from './layouts/AuthLayout'
+import ShowCaseLayout from './layouts/ShowCaseLayout'
 
-#nav a {
-  font-weight: bold;
-  color: #2c3e50;
-}
-
-#nav a.router-link-exact-active {
-  color: #42b983;
+  export default {
+    name: 'App',
+    computed: {
+      layout() {
+        return this.$route.meta.layout || "showcase"
+      }
+    },
+    beforeCreate () {
+      this.$store.dispatch('updateShares')
+      console.log('start')
+    },
+    beforeDestroy() {
+      this.$store.dispatch('socketDestroy')
+      console.log('stop')
+    },
+    components: {
+      auth: AuthLayout,
+      showcase: ShowCaseLayout,
+    }
+  }
+</script>
+<style scoped>
+div {
+  width: 100%;
+  margin: 0;
+  padding: 0;
 }
 </style>

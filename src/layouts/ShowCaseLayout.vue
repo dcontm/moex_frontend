@@ -8,6 +8,9 @@
       <v-list>
         <v-list-item-group v-model="menuItem" active-class="border" color="#7FD5D5">
           <v-list-item :to="{ path: '/shares' }">Акции</v-list-item>
+          <v-list-item v-if="$store.state.auth.user.info.is_superuser" :to="{ path: '/users' }">
+            Пользователи
+          </v-list-item>
           <v-list-item :to="{ path: '/users/me' }">Профиль</v-list-item>
           <v-list-item @click="logout">Выйти</v-list-item>
         </v-list-item-group>

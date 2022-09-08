@@ -1,14 +1,23 @@
 <template>
   <v-container>
-    <div class="text-center">
+    <div>
       <v-btn @click="fetchdata(1,'CANDLE_INTERVAL_5_MIN')" class="mx-2" fab dark x-small color="primary" outlined>5m</v-btn>
       <v-btn @click="fetchdata(2,'CANDLE_INTERVAL_15_MIN')" class="mx-2" fab dark x-small color="primary" outlined>15m</v-btn>
       <v-btn @click="fetchdata(3,'CANDLE_INTERVAL_HOUR')" class="mx-2" fab dark x-small color="primary" outlined>1h</v-btn>
       <v-btn @click="fetchdata(4,'CANDLE_INTERVAL_DAY')" class="mx-2" fab dark x-small color="primary" outlined>1d</v-btn>
       <br>
+      <v-row class="py-5 px-5">
+        <v-chip-group mandatory active-class="primary--text">
+          <v-chip @click="changeTypeChart('candles')">Свечи</v-chip>
+          <v-chip @click="changeTypeChart('line')">Линия</v-chip>
+        </v-chip-group>
+      </v-row>
     </div>
-    <div id="chart">
-      <apexchart type="candlestick" height="420" :options="chartOptions" :series="series"></apexchart>
+    <div id="chart" v-if="type_chart=='line'">
+      <apexchart type="line" height="420" :options="chartOptionsLine" :series="series"></apexchart>
+    </div>
+    <div id="chart" v-else>
+      <apexchart type="candlestick" height="420" :options="chartOptionsCandle" :series="series"></apexchart>
     </div>
     <div id="chart-bar">
       <apexchart type="bar" height="160" :options="chartOptionsBar" :series="seriesBar"></apexchart>
@@ -17,12 +26,11 @@
 </template>
 
 <script>
-import axios from 'axios'
 import {getAPI} from '../axios-api'
 export default {
   name: 'ChartArea',
   data: () => ({
-    width: '',
+    type_chart: 'candles',
     period: 4,
     interval: 'CANDLE_INTERVAL_DAY',
     series: [{
@@ -66,7 +74,7 @@ export default {
         }
       }
     },
-    chartOptions: function () {
+    chartOptionsCandle: function () {
       return  {
         chart: {
           type: 'candlestick',
@@ -85,21 +93,6 @@ export default {
               },
           }
         },
-        noData: {
-          text: "За последние 12 часов торгов не было!"
-        },
-        yaxis: {
-          tooltip: {
-            enabled: false
-          },
-          crosshairs: {
-            width:1,
-            stroke: {
-              color: 'blue',
-              width: 1,
-            }
-          }
-        },
         tooltip: {
           enabled: true,
           custom: function({series, seriesIndex, dataPointIndex, w}) {
@@ -114,16 +107,40 @@ export default {
               valueT = valueT+'0'
             }
             const diff = info.y[3] - info.y[0]
-            const pct_change = diff/((info.y[0])/100)
+            const pct_change = (diff/((info.y[0])/100)).toFixed(2)
             const color = diff > 0 ? 'green' : "red";
             return '<div class="arrow_box">'+
             '<span style="color:blue;"><hr>'+valueD+' '+valueT+'</span><br><hr>'+
-            `<span style="color:${color};">${diff} руб.%</span><br>`+
-            '<span style="color:blue;">O: '+info.y[0]+'</span><br>'+
-            '<span style="color:blue;">H: '+info.y[1]+'</span><br>'+
-            '<span style="color:blue;">L: '+info.y[2]+'</span><br>'+
-            '<span style="color:blue;">C: '+info.y[3]+'</span>'+
+            `<span style="color:${color};">${pct_change}%</span><br>`+
+            '<span style="color:blue;">Откр.: '+info.y[0]+'</span><br>'+
+            '<span style="color:blue;">Макс.: '+info.y[1]+'</span><br>'+
+            '<span style="color:blue;">Мин.: '+info.y[2]+'</span><br>'+
+            '<span style="color:blue;">Закр.: '+info.y[3]+'</span>'+
             '</div>'
+          }
+        },
+        noData: {
+          text: "За последние 12 часов торгов не было!"
+        },
+        yaxis: {
+          tooltip: {
+            enabled: false
+          },
+          labels: {
+            formatter: (value) => {
+              if (value > 10) {
+                return value.toFixed(2)
+              } else {
+                return value.toFixed(5)
+              }
+            }
+          },
+          crosshairs: {
+            width:1,
+            stroke: {
+              color: 'blue',
+              width: 1,
+            }
           }
         },
         xaxis: {
@@ -177,7 +194,91 @@ export default {
           },
         }
       }
-    }
+    },
+    chartOptionsLine: function () {
+      return {
+        grid: {
+          xaxis: {
+              lines: {
+                  show: true
+              }
+          },   
+          yaxis: {
+              lines: {
+                  show: true
+              }
+          },  
+        },
+        tooltip: {
+          enabled: true,
+          custom: function({series, seriesIndex, dataPointIndex, w}) {
+            const info = w.config.series[seriesIndex].data[dataPointIndex]
+            const months = ["Января","Февраля","Марта","Апреля","Мая","Июня","Июля","Августа","Сентября","Октября","Ноября", "Декабрья"]
+            const date = new Date(info.x)
+            const month = months[date.getMonth()]
+            const day = date.getDate()
+            const valueD = day+" "+month
+            let valueT = date.getHours() +':'+ date.getMinutes()
+            if (valueT.split(':')[1].length == 1) {
+              valueT = valueT+'0'
+            }
+            return '<div class="arrow_box">'+
+            '<span style="color:blue;"><hr>'+valueD+' '+valueT+'</span><br><hr>'+
+            '<span style="color:blue;">'+(info.y > 10 ? info.y.toFixed(2) : info.y.toFixed(5))+'руб.'+'</span><br>'+
+            '</div>'
+          }
+        },
+  
+        noData: {
+          text: "За последние 12 часов торгов не было!"
+        },
+        yaxis: {
+          tooltip: {
+            enabled: true
+          },
+          labels: {
+            formatter: (value) => {
+              if (value > 10) {
+                return value.toFixed(2)
+              } else {
+                return value.toFixed(5)
+              }
+            }
+          },
+          crosshairs: {
+            width:1,
+            stroke: {
+              color: 'blue',
+              width: 1,
+            }
+          }
+        },
+        xaxis: {
+          tooltip: {
+            enabled: false
+          },
+          tickAmount:1,
+          datetimeUTC: false,
+          type: 'datetime',
+          labels: {
+            rotate:0,
+            datetimeFormatter: {
+                year: 'yyyy',
+                month: "MMM 'yy",
+                day: 'dd MMM',
+                hour: 'HH:mm',
+            },
+          },
+          crosshairs: {
+            width:1,
+            stroke: {
+              color: 'blue',
+              width: 1,
+            }
+          }
+        },
+      }
+    },
   },
   created () {
     this.fetchdata(this.period,this.interval)
@@ -199,13 +300,25 @@ export default {
     },
 
     build(candles_data, period) {
-      const result = Object.values(candles_data.data).map(values => 
-                    new Object({'x': values.time, 'y':[values.open, values.high, values.low, values.close]})
-                    )
+      let result = []
+      if (this.type_chart == "line") {
+          result = Object.values(candles_data.data).map(values => 
+            new Object({'x': values.time, 'y':((values.high+values.low)/2)})
+            )
+      }
+      else {
+          result = Object.values(candles_data.data).map(values => 
+            new Object({'x': values.time, 'y':[values.open, values.high, values.low, values.close]})
+            )
+      }
       const resultbar = Object.values(candles_data.data).map(values => values.volume)
       this.series = [{data:result}]
       this.seriesBar = [{data:resultbar}]
     },
+
+    changeTypeChart(type) {
+      this.type_chart = type
+    }
   }
 }
 </script>

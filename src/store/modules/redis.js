@@ -21,11 +21,9 @@ export default {
 
     actions: {
         updateShares({commit, state}) {
-            console.log('connetction wss in actions')
             const connection = new WebSocket(getWsAPI+"/shares/price/wss")
             connection.onmessage = function(event) {
             const data = JSON.parse(event.data)
-            console.log(event)
             commit('updateShares', {data, connection})
             }
         },

@@ -3,7 +3,7 @@
     <h2>{{share.name}}&ensp;({{share.ticker}})&ensp;<span style="color:green;">{{price.current}} руб.</span></h2>
     <br>
     
-    <ChartArea />
+    <chart-widget />
     <v-simple-table>
         <template v-slot:default>
         <thead>
@@ -37,11 +37,11 @@
 
 <script>
 import {getAPI} from '../../axios-api'
-import ChartArea from '../../components/ChartArea.vue'
+import ChartWidget from '../../components/ChartWidget.vue'
 
 export default {
   components: {
-    ChartArea
+    ChartWidget,
   },
   data: () => ({
     share: '',
@@ -54,7 +54,6 @@ export default {
     async update(figi) {
       this.price.current = await this.$store.state.redis.shares[figi].price
       this.price.open = await this.$store.state.redis.shares[figi].price.old_price
-      console.log(this.$store.state.redis.shares[figi])
     }
   },
   async created () {

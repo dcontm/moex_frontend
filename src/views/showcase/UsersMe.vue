@@ -25,7 +25,7 @@
         <tbody>
           <tr
             v-for="position in portfolio.positions"
-            :key="position"
+            :key="position.figi"
           >
             <th>
               {{position.figi}}
@@ -53,14 +53,23 @@ export default {
   data: () => ({
     portfolio: '',
   }),
+  methods: {
+    async getUserProfile () {
+      const config = {headers: { 'Authorization': 'Bearer ' + this.$store.getters.getToken}}
+      await getAPI.get('/users/portfolio', config)
+      .then((response) => {
+        this.portfolio = response.data
+        console.log(response.data)
+      }).catch((error) => {
+        this.portfolio = [];
+      });
+    }
+  },
   async created () {
-    const config = {headers: { 'Authorization': 'Bearer ' + this.$store.getters.getToken}}
-    await getAPI.get('/users/portfolio', config)
-    .then((response) => {
-      this.portfolio = response.data
-    }).catch((error) => {
-      this.portfolio = [];
-    });
+    let getUserProfileInterval = setInterval(() => {
+      this.getUserProfile()
+    }, 2500);
+    this.$once('hook:beforeDestroy', () => clearInterval(getUserProfileInterval))
   }
 }
 </script>

@@ -1,5 +1,6 @@
 <template>
   <v-card>
+  <currency-widget />
   <v-card-title>Портфель</v-card-title>
     <p>Общая стоимость валюты:{{portfolio.total_amount_currencies}}</p>
     <p>Общая стоимость акции: {{portfolio.total_amount_shares}}</p>
@@ -48,8 +49,12 @@
 <script>
 
 import {getAPI} from '../../axios-api' 
+import CurrencyWidget from '../../components/CurrencyWidget.vue'
 
 export default {
+  components: {
+    CurrencyWidget
+  },
   data: () => ({
     portfolio: '',
   }),

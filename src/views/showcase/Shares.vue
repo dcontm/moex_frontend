@@ -1,5 +1,6 @@
 <template>
   <v-card>
+    <currency-widget />
     <v-card-title>
       Акции из индекса MOEX
       <v-bottom-navigation color="primary">
@@ -13,10 +14,16 @@
           <v-icon>mdi-heart-outline</v-icon>
         </v-btn>
 
+        <v-btn @click="changeFilter('currency')"> 
+          <span>Валюта</span>
+          <v-icon>mdi-currency-usd</v-icon>
+        </v-btn>
+
         <v-btn @click="changeFilter('history')"> 
           <span>Недавние</span>
           <v-icon>mdi-history</v-icon>
         </v-btn>
+  
       </v-bottom-navigation>
 
       <v-text-field
@@ -59,8 +66,11 @@
 </template>
 
 <script>
-
+  import CurrencyWidget from '../../components/CurrencyWidget.vue'
   export default {
+    components: {
+      CurrencyWidget
+    },
     data: () => ({
       filter: 'all',
       search: '',
@@ -76,14 +86,17 @@
     }),
     computed: {
       shares() {        
-        let arr = Object.values(this.$store.state.redis.shares)
+        let dataMarket = Object.values(this.$store.state.redis.shares)
+        let arr = dataMarket.filter( (item) => !["USD","JPY", "EUR", "CNY"].includes(item.ticker))
         switch(this.filter) {          
           case 'all' :
             break
           case 'tracked':
             arr = arr.filter( (item) => this.$store.state.auth.user.info.tracked.includes(item.figi))
           case 'history':
-            arr = arr.filter( (item) => this.$store.state.auth.user.info.tracked.includes(item.figi))         
+            arr = arr.filter( (item) => this.$store.state.auth.user.info.tracked.includes(item.figi))
+          case 'currency':
+            arr = dataMarket.filter( (item) => ["USD", "EUR", "CNY"].includes(item.ticker))                   
         }
         arr.forEach( (item) => {
           this.getdiff(item)

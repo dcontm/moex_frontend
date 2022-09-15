@@ -1,5 +1,6 @@
 <template>
   <div>
+    <currency-widget />
     <h2>{{share.name}}&ensp;({{share.ticker}})&ensp;<span style="color:green;">{{price.current}} руб.</span></h2>
     <br>
     
@@ -37,11 +38,13 @@
 
 <script>
 import {getAPI} from '../../axios-api'
+import CurrencyWidget from '../../components/CurrencyWidget.vue'
 import ChartWidget from '../../components/ChartWidget.vue'
 
 export default {
   components: {
     ChartWidget,
+    CurrencyWidget
   },
   data: () => ({
     share: '',

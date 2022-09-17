@@ -56,11 +56,12 @@ export default {
   methods: {
     async update(figi) {
       this.price.current = await this.$store.state.redis.shares[figi].price
-      this.price.open = await this.$store.state.redis.shares[figi].price.old_price
+      this.price.open = await this.$store.state.redis.shares[figi].old_price
     }
   },
   async created () {
     const figi = this.$route.params.figi
+    this.$store.dispatch('addToHistory', {figi})
     const config = {headers: { 'Authorization': 'Bearer ' + this.$store.getters.getToken}}
     const response_info = await getAPI.get("/shares/"+figi, config);
     this.share = response_info.data
@@ -68,7 +69,6 @@ export default {
       this.update(figi)
     }, 1000);
     this.$once('hook:beforeDestroy', () => clearInterval(updateInterval))
-    console.log("Clear Interval")
   },
 }
 </script>

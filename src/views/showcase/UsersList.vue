@@ -159,18 +159,14 @@
         const config = {headers: { 'Authorization': 'Bearer ' + this.$store.getters.getToken}}
         await getAPI.delete('/users/'+id, config)
         .then((response) => {
-          console.log('successed delete')
         }).catch((error) => {
-          console.log('error delete')
         });
       },
       async updateUser(id, updated) {
         const config = {headers: { 'Authorization': 'Bearer ' + this.$store.getters.getToken}}
         await getAPI.patch('/users/'+id, updated, config)
         .then((response) => {
-          console.log('successed updated')
         }).catch((error) => {
-          console.log('error updated')
         });
       },
     },

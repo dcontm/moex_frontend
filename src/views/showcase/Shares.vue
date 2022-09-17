@@ -4,7 +4,7 @@
     <v-card-title>
       Акции из индекса MOEX
       <v-bottom-navigation color="primary">
-        <v-btn @click="changeFilter('all')">
+        <v-btn @click="changeFilter('shares')">
           <span>Все</span>
           <v-icon>mdi-format-list-bulleted</v-icon>
         </v-btn>
@@ -39,7 +39,7 @@
       @click:row="toDetail"
       :search="search"
       :headers="headers"
-      :items="shares"
+      :items="share"
       :items-per-page="50"
       item-key="name"
       class="elevation-1"
@@ -72,9 +72,8 @@
       CurrencyWidget
     },
     data: () => ({
-      filter: 'all',
       search: '',
-      selected: [],
+      filter: 'shares',
       headers: [
         {text:'Избранное', value: 'figi'},
         { text: 'Тикер', value: 'ticker' },
@@ -85,30 +84,33 @@
       ],
     }),
     computed: {
-      shares() {        
-        let dataMarket = Object.values(this.$store.state.redis.shares)
-        let arr = dataMarket.filter( (item) => !["USD","JPY", "EUR", "CNY"].includes(item.ticker))
-        switch(this.filter) {          
-          case 'all' :
-            break
-          case 'tracked':
-            arr = arr.filter( (item) => this.$store.state.auth.user.info.tracked.includes(item.figi))
-          case 'history':
-            arr = arr.filter( (item) => this.$store.state.auth.user.info.tracked.includes(item.figi))
-          case 'currency':
-            arr = dataMarket.filter( (item) => ["USD", "EUR", "CNY"].includes(item.ticker))                   
+      share () {
+        let data = []
+        if (this.filter === 'shares') {
+          data = this.$store.getters.getAll
         }
-        arr.forEach( (item) => {
-          this.getdiff(item)
-        })
-        return arr
-      },
+        if (this.filter === 'tracked') {
+          data = this.$store.getters.getAll
+          .filter( (item) => this.$store.state.auth.user.info.tracked.includes(item.figi))
+        }
+        if (this.filter === 'currency') {
+          data = this.$store.getters.getCurrency
+        }
+        if (this.filter === 'history') {
+          data = this.$store.getters.getHistory
+        }
+        data.forEach(element => {
+          this.getdiff(element)     
+        });
+        return data
+      }
     },
+
     methods: {
       changeFilter(param) {
         this.filter = param
       },
-
+  
       changeTrackedStatus(figi) {
         this.$store.dispatch("changeTrackedStatus", figi)
       },
@@ -136,6 +138,6 @@
       toDetail (item) {
         return this.$router.push('/shares/'+item.figi)
       }
-    }
+    },
   }
 </script>

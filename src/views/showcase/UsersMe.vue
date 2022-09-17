@@ -64,7 +64,6 @@ export default {
       await getAPI.get('/users/portfolio', config)
       .then((response) => {
         this.portfolio = response.data
-        console.log(response.data)
       }).catch((error) => {
         this.portfolio = [];
       });

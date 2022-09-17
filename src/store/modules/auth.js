@@ -9,21 +9,16 @@ export default {
         destroyUser (state) {
           state.user = null
           localStorage.removeItem('user')
-          console.log(localStorage)
         },
         upgradeStorage (state, {user}) {
           state.user = user
           localStorage.setItem('user', JSON.stringify(user))
-          console.log(localStorage)
         },
         changeTrackedStatus(state, figi) {
-          console.log(figi)
            if (state.user.info.tracked.includes(figi)) {
-            console.log(1)
             state.user.info.tracked = state.user.info.tracked.filter(item => item !=figi ) 
            }
            else {
-            (console.log(2))
             state.user.info.tracked.push(figi)
            }
         }

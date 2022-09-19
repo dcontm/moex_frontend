@@ -35,6 +35,12 @@ const routes = [
     meta: {layout: "showcase", requiresLogin: true}
   },
   {
+    path: '/shares/edit',
+    name: 'SharesEdit',
+    component: () => import('../views/showcase/SharesEdit.vue'),
+    meta: {layout: "showcase", requiresLogin: true}
+  },
+  {
     path: '/shares/:figi',
     name: 'ShareDetail',
     component: () => import('../views/showcase/ShareDetail.vue'),

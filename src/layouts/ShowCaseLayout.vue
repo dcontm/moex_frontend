@@ -7,11 +7,12 @@
     <v-card class="mx-auto">
       <v-list>
         <v-list-item-group v-model="menuItem" active-class="border" color="#7FD5D5">
-          <v-list-item :to="{ path: '/shares' }">Акции</v-list-item>
-          <v-list-item v-if="$store.state.auth.user.info.is_superuser" :to="{ path: '/users' }">
-            Пользователи
-          </v-list-item>
-          <v-list-item :to="{ path: '/users/me' }">Профиль</v-list-item>
+          <v-list-item to="/shares" :exact="true">Акции</v-list-item>
+          <v-list-item to="/users/me" :exact="true">Профиль</v-list-item>
+          <div v-if="$store.state.auth.user.info.is_superuser">
+            <v-list-item to="/users" :exact="true">Пользователи</v-list-item>
+            <v-list-item to="/shares/edit" :exact="true">Редактирование</v-list-item>
+          </div>
           <v-list-item @click="logout">Выйти</v-list-item>
         </v-list-item-group>
       </v-list>
